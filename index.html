@@ -57,7 +57,7 @@
             <input type="email" id="correo" required placeholder="correo@ejemplo.com">
         </div>
 
-        <!-- Pregunta dinámica según el módulo -->
+        <!-- Pregunta dinámica -->
         <div class="form-group">
             <label id="labelPregunta">¿Hace cuánto no realizas un examen específico de función renal (creatinina, TFG)?</label>
             <select id="preguntaClave" required>
@@ -76,13 +76,14 @@
         <p id="textoResultado"></p>
         <p><strong>Paso Siguiente Recomendado:</strong> Para conocer la lista exacta de exámenes médicos que debes realizarte y evaluar tus factores particulares, agenda una consulta preventiva.</p>
         
-        <!-- Enlace a Google Calendar / Calendly con pago -->
         <a id="linkPagoAgenda" class="btn-agendar" href="https://calendar.google.com/" target="_blank">Agendar Consulta y Evaluación</a>
     </div>
 </div>
 
 <script>
     let moduloActual = 'Renal';
+    // Tu URL de Apps Script vinculada
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxRmTHkFissauy5i6UeWX6cGHGDMQgJmeCqxgJlRCfqlQUqdM2_6CWkjxzojzvxx0EE/exec";
 
     const btnRenal = document.getElementById('btn-renal');
     const btnCardio = document.getElementById('btn-cardio');
@@ -120,6 +121,8 @@
 
         const nombre = document.getElementById('nombre').value;
         const edad = document.getElementById('edad').value;
+        const telefono = document.getElementById('telefono').value;
+        const correo = document.getElementById('correo').value;
         const respuesta = document.getElementById('preguntaClave').value;
 
         let mensaje = `Hola <strong>${nombre}</strong>. A tus <strong>${edad} años</strong>, tu resultado en el módulo <strong>${moduloActual}</strong> indica un <strong>NIVEL ALTO DE INCERTIDUMBRE PREVENTIVA</strong>.`;
@@ -133,6 +136,21 @@
         document.getElementById('textoResultado').innerHTML = mensaje;
         document.getElementById('riskForm').style.display = 'none';
         document.getElementById('resultadoBox').style.display = 'block';
+
+        // Envío de datos en segundo plano hacia tu Google Sheets
+        fetch(SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                nombre: nombre,
+                edad: edad,
+                telefono: telefono,
+                correo: correo,
+                modulo: moduloActual,
+                respuesta: respuesta
+            })
+        }).catch(err => console.error("Error al enviar datos:", err));
     });
 </script>
 
